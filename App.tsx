@@ -16,12 +16,10 @@ export default function App() {
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border-8 border-cyan-200 overflow-hidden relative flex flex-col h-[700px]">
         
         {/* Top Bar / Status */}
-        <div className="bg-cyan-100 p-4 flex justify-between items-center shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-pink-500 rounded-full animate-pulse"></div>
-            <span className="text-xs font-bold text-cyan-700 tracking-wider" title="(unk sigh Ann)">SYAN</span>
+        <div className="bg-cyan-100 p-4 flex justify-center items-center shrink-0">
+          <div className="text-xs font-bold text-cyan-700 tracking-wider uppercase text-center">
+            For Lil-Lil John from Syan & Scott
           </div>
-          <div className="text-xs text-pink-500 font-bold uppercase">Riley's Lullaby</div>
         </div>
 
         {/* Main Display Area - Flex 1 to take remaining space */}
@@ -34,8 +32,6 @@ export default function App() {
         </div>
 
         {/* Navigation Tabs */}
-        {/* We moved specific tab controls (like Play button) INTO the tabs themselves for cleaner code.
-            But the Navigation bar remains global. */}
         <div className="bg-white p-4 border-t border-cyan-100 shrink-0">
           <div className="grid grid-cols-4 gap-2 bg-cyan-50 p-1 rounded-2xl">
             <button 

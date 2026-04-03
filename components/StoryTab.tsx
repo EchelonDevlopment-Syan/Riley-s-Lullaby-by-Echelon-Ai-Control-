@@ -24,7 +24,7 @@ export default function StoryTab() {
         <h2 className="text-xl font-bold text-slate-800 flex items-center justify-center gap-2">
           <BookOpen className="text-cyan-500" /> Bedtime Stories
         </h2>
-        <p className="text-xs text-slate-500">Generate a soothing tale for Riley</p>
+        <p className="text-xs text-slate-500">Generate a soothing tale for Lil-Lil John</p>
       </div>
 
       <div className="space-y-4">

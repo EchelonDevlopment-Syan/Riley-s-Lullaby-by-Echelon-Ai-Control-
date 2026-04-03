@@ -6,7 +6,7 @@ export default function SootheTab() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [audioDebugStatus, setAudioDebugStatus] = useState("Audio: Inactive");
+  const [audioDebugStatus, setAudioDebugStatus] = useState("Audio: Ready");
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const nextNoteTimeRef = useRef<number>(0);
@@ -54,12 +54,17 @@ export default function SootheTab() {
     const ctx = getAudioContext();
     if (!ctx) return;
 
+    // Safety: prevent catching up if we fell way behind (e.g., tab backgrounded)
+    if (nextNoteTimeRef.current < ctx.currentTime - 0.1) {
+        nextNoteTimeRef.current = ctx.currentTime;
+    }
+
     // Access current song directly from list to ensure fresh data inside callback
     const activeSong = TRACK_LIST[currentSongIndex];
     if (!activeSong) return;
 
     const tempoMultiplier = 60 / activeSong.bpm;
-    const lookahead = 0.1; // seconds
+    const lookahead = 0.15; // Increased slightly for stability
 
     // Schedule notes that fall within the lookahead window
     while (nextNoteTimeRef.current < ctx.currentTime + lookahead) {
@@ -83,35 +88,23 @@ export default function SootheTab() {
 
   const startMusic = async () => {
     const ctx = getAudioContext();
-
-    // Handle suspended state (browser autoplay policy)
-    if (ctx.state === 'suspended') {
-      try {
-        await ctx.resume();
-        setAudioDebugStatus("Audio: Resumed");
-      } catch (e) {
-        console.error(e);
-        setAudioDebugStatus("Audio: Resume Failed");
-      }
-    } else {
-      setAudioDebugStatus("Audio: Active");
-    }
-
-    // Reset cursors if starting from a stopped state
+    
+    // Set pointers if starting fresh
     if (!isPlaying) {
         noteIndexRef.current = 0;
-        nextNoteTimeRef.current = ctx.currentTime + 0.05;
+        nextNoteTimeRef.current = ctx.currentTime + 0.1;
     }
 
     setIsPlaying(true);
     scheduleNotes();
+    setAudioDebugStatus("Audio: Playing");
   };
 
   const stopMusic = () => {
     if (schedulerTimerRef.current) clearTimeout(schedulerTimerRef.current);
     setIsPlaying(false);
     setProgress(0);
-    setAudioDebugStatus("Audio: Stopped");
+    setAudioDebugStatus("Audio: Paused");
   };
 
   // Cleanup on unmount
@@ -133,13 +126,24 @@ export default function SootheTab() {
       const ctx = getAudioContext();
       // Crucial: Reset note index when song changes
       noteIndexRef.current = 0;
-      nextNoteTimeRef.current = ctx.currentTime + 0.05;
+      nextNoteTimeRef.current = ctx.currentTime + 0.1;
       
       scheduleNotes();
     }
   }, [currentSongIndex, isPlaying, scheduleNotes]);
 
-  const handlePlayClick = () => {
+  const handlePlayClick = async () => {
+    // CRITICAL: We must resume context here, in the direct user interaction handler
+    const ctx = getAudioContext();
+    
+    if (ctx.state === 'suspended') {
+      try {
+        await ctx.resume();
+      } catch (e) {
+        console.error("Audio resume failed:", e);
+      }
+    }
+
     if (isPlaying) {
       stopMusic();
     } else {

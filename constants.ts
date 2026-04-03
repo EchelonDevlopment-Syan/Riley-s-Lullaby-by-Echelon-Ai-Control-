@@ -11,7 +11,7 @@ export const NOTES = {
 export const TRACK_LIST: Song[] = [
   {
     id: '1',
-    title: "Riley's Lullaby",
+    title: "Lil-Lil John",
     category: 'Soothe',
     bpm: 60,
     description: "Traditional Piano & Hum",
